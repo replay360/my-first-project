@@ -157,6 +157,28 @@
 
         .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(4px); }
         .sidebar-backdrop.show { display: block; }
+
+        /* --- تصميم قسم المحلل الذكي الجديد (AI Analyst) --- */
+        .ai-container {
+            width: 100%; max-width: 750px; margin: 0 auto; background: rgba(13, 17, 23, 0.7);
+            border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--blur);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; height: 550px; overflow: hidden;
+        }
+        .ai-header {
+            padding: 15px 20px; background: rgba(7, 9, 14, 0.8); border-bottom: 1px solid var(--glass-border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .ai-status-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+        .ai-title { font-weight: 700; font-size: 1.1rem; color: #fff; }
+        .ai-chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 16px; line-height: 1.5; font-size: 0.95rem; animation: fadeIn 0.3s ease forwards; }
+        .msg.user { background: linear-gradient(135deg, var(--primary), rgba(0, 224, 255, 0.6)); color: #07090e; font-weight: 600; align-self: flex-start; border-bottom-right-radius: 4px; }
+        .msg.bot { background: var(--glass); border: 1px solid var(--glass-border); color: #fff; align-self: flex-end; border-bottom-left-radius: 4px; }
+        .ai-input-area { padding: 15px 20px; background: rgba(7, 9, 14, 0.5); border-top: 1px solid var(--glass-border); display: flex; gap: 12px; }
+        .ai-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 0.95rem; outline: none; transition: var(--transition); user-select: text !important; }
+        .ai-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 224, 255, 0.15); }
+        .ai-send-btn { background: var(--glass); border: 1px solid var(--glass-border); color: var(--accent); padding: 0 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .ai-send-btn:hover { background: rgba(0, 255, 135, 0.1); border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 135, 0.2); }
     </style>
 </head>
 <body>
@@ -179,6 +201,9 @@
         <div class="nav-item active" id="btn-highlights" onclick="switchPage('highlights')">
             <span>قسم الملخصات الكروية</span> ⚽
         </div>
+        <div class="nav-item" id="btn-ai-analyst" onclick="switchPage('ai-analyst')">
+            <span>المحلل الكروي الذكي</span> 🧠
+        </div>
         <div class="nav-item" id="btn-results" onclick="switchPage('results')">
             <span>نتائج مباريات كأس العالم</span> 📊
         </div>
@@ -194,13 +219,6 @@
         <section id="highlights" class="page-section active-page">
             <div class="action-hint">💡 اضغط على الشرطات في الأعلى من أجل اختيار قسم آخر</div>
             <div class="video-grid">
-            <div class="video-card">
-            <div class="video-tagline">🔥 مواجهة نارية جديدة</div>
-            <div class="video-card-title">ملخص أحدث المباريات واللقطات الحية</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/y4ktgr" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-        </div>
                 <div class="video-card">
                     <div class="video-tagline">🔥 قمة الكلاسيكو النارية</div>
                     <div class="video-card-title">ملخص مباراة برشلونة X ريال مدريد</div>
@@ -214,6 +232,24 @@
                     <div class="video-wrapper">
                         <iframe src="https://streamable.com/e/v1d0st" allow="autoplay; fullscreen" allowfullscreen></iframe>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- القسم الجديد للمحلل الذكي -->
+        <section id="ai-analyst" class="page-section">
+            <div class="action-hint">🧠 رادار RePlay الذكي - محلل تكتيكي مبسط وخبير بتحليل أرقام المباريات وتوقعات الدوري</div>
+            <div class="ai-container">
+                <div class="ai-header">
+                    <div class="ai-status-dot"></div>
+                    <div class="ai-title">المحلل التكتيكي كابتن RePlay</div>
+                </div>
+                <div class="ai-chat-area" id="chat-area">
+                    <div class="msg bot">مرحباً بك يا كابتن! أنا المحلل الفني الخاص بمنصة RePlay. عطني أي تكتيك، تشكيلة، أو أرقام مباراة وخليني أحللها إلك من منظور المستطيل الأخضر لعام 2026! ⚽</div>
+                </div>
+                <div class="ai-input-area">
+                    <input type="text" class="ai-input" id="ai-input" placeholder="اسأل المحلل عن تكتيك، مباراة، أو توقعات..." onkeypress="handleKeyPress(event)">
+                    <button class="ai-send-btn" onclick="askAI()">إرسال</button>
                 </div>
             </div>
         </section>
@@ -270,6 +306,77 @@
                 const targetBtn = document.getElementById(`btn-${pageId}`);
                 if(targetBtn) targetBtn.classList.add('active');
             }, 100);
+        }
+
+        /* --- نظام محاكاة خوارزمية المحلل الكروي الموجه (Rule-Based Dedicated AI) --- */
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') { askAI(); }
+        }
+
+        function askAI() {
+            const inputEl = document.getElementById('ai-input');
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            appendMessage(query, 'user');
+            inputEl.value = '';
+
+            setTimeout(() => {
+                const response = generateAIResponse(query);
+                appendMessage(response, 'bot');
+            }, 600);
+        }
+
+        function appendMessage(text, sender) {
+            const chatArea = document.getElementById('chat-area');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${sender}`;
+            msgDiv.innerText = text;
+            chatArea.appendChild(msgDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function generateAIResponse(input) {
+            const text = input.toLowerCase();
+            
+            // تحقق صارم لمنع الانحدار لمواضيع أخرى خارج كرة القدم
+            const nonFootballKeywords = ['طبخ', 'اكل', 'طبخات', 'سياسة', 'اقتصاد', 'رياضيات', 'برمجة', 'كود', 'فيزياء', 'كيمياء', 'اغاني', 'افلام'];
+            for (let word of nonFootballKeywords) {
+                if (text.includes(word)) {
+                    return "عذراً يا كابتن! أنا محلل تكتيكي ومستشار فني مختص بكرة القدم والمستطيل الأخضر فقط. دعنا نركز على الملعب والبطولات الحالية لعام 2026!";
+                }
+            }
+
+            // خريطة المعالجة الذكية والموجهة للتاريخ الحقيقي 2026 ومواضيع الكرة
+            if (text.includes('برشلونة') || text.includes('برشا')) {
+                if (text.includes('ريال') || text.includes('كلاسيكو')) {
+                    return "الكلاسيكو في عام 2026 صار يعتمد كلياً على سرعة التحولات الهجومية والضغط العالي. برشلونة يحاول دائماً خنق خط وسط الريال، لكن مرتدات الملكي تظل السلاح الأخطر بوجود السرعات الفائقة على الأطراف.";
+                }
+                return "برشلونة في موسم 2026 يركز بقوة على دمج عناصر الخبرة مع المواهب الشابة، وتطبيق أسلوب الـ 1:1 المالي الصارم ساعد الإدارة على موازنة الحسابات وسداد الديون بدلاً من تجميد الأموال، مما انعكس إيجابياً على استقرار البناء الفني التكتيكي داخل الملعب.";
+            }
+            
+            if (text.includes('ريال مدريد') || text.includes('الملكي') || text.includes('مدريد')) {
+                return "ريال مدريد في 2026 يمتلك خط هجوم فتاك يعتمد على اللامركزية. التحدي التكتيكي الأكبر للمدرب هو الحفاظ على التوازن الدفاعي ومنع الفجوات في المساحات النصفية (Half-spaces) عند خسارة الكرة.";
+            }
+
+            if (text.includes('توقع') || text.includes('منو ياخذ') || text.includes('بطل')) {
+                return "حسابات موسم 2026 التكتيكية معقدة جداً! الفريق اللي يمتلك دكة بدلاء قوية وقدرة على تدوير اللاعبين بدون هبوط حاد في معدل الضغط العكسي هو الأقرب لحسم الألقاب هذا العام.";
+            }
+
+            if (text.includes('تكتيك') || text.includes('خطة') || text.includes('تشكيلة')) {
+                return "الاتجاه التكتيكي السائد في عام 2026 هو الاعتماد على الأظهرة المقلوبة (Inverted Fullbacks) لبناء زيادة عددية في خط الوسط (3-2-4-1) أثناء الاستحواذ، والتحول السريع لـ (4-4-2) في الحالة الدفاعية لغلق زوايا التمرير.";
+            }
+
+            if (text.includes('كأس العالم') || text.includes('المونديال')) {
+                return "مباريات كأس العالم والبطولات الدولية لعام 2026 تشهد طفرة بدنية هائلة؛ المنتخبات لم تعد تعتمد على الأسماء فقط، بل الفوز للأكثر تنظيماً في الكرات الثابتة والتحول من الدفاع للهجوم بأقل من 5 ثوانٍ.";
+            }
+
+            if (text.includes('تاريخ') || text.includes('سنة') || text.includes('الوقت')) {
+                return "نحن الآن في عام 2026 يا كابتن! موسم كروي استثنائي يشهد تطوراً تكتيكياً هائلاً وصراعاً محتدماً على منصات التتويج.";
+            }
+
+            // رد تكتيكي عام بصلب كرة القدم في حال كانت الرسالة عامة
+            return "تحليل ذكي وملاحظة ممتازة يا كابتن! تكتيكياً، كرة القدم الحالية تعتمد على مرونة التحرك واستغلال المساحات الضيقة. برأيك، هل الاعتماد على المهاجم الوهمي أفضل للمنظومة أم رأس الحربة الكلاسيكي الصريح؟";
         }
     </script>
 </body>
