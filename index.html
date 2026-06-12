@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RePlay | منصة الملخصات الكروية</title>
+    <style>
+        /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
+        :root {
+            --bg-gradient: radial-gradient(circle at 50% 50%, #0d1117 0%, #07090e 100%);
+            --primary: #00e0ff;
+            --primary-glow: rgba(0, 224, 255, 0.4);
+            --accent: #00ff87;
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --blur: blur(16px);
+            --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* --- إعدادات التصفير العامة --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- الهيدر (الشريط العلوي) --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 80px;
+            background: rgba(7, 9, 14, 0.6);
+            backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+            z-index: 100;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .sports-badge {
+            position: relative; width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: badgeMorph 6s linear infinite alternate;
+        }
+        .sports-badge::before { content: ''; width: 18px; height: 18px; border: 3px solid #07090e; border-radius: 50%; background: transparent; }
+
+        @keyframes badgeMorph {
+            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            100% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+        }
+
+        .logo-text {
+            font-size: 1.8rem; font-weight: 800; letter-spacing: 1px;
+            background: linear-gradient(to left, #fff, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .menu-btn {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+            cursor: pointer; transition: var(--transition);
+        }
+        .menu-btn:hover { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 224, 255, 0.2); }
+        .menu-btn span { width: 24px; height: 2px; background: #fff; border-radius: 2px; transition: var(--transition); }
+
+        /* --- القائمة الجانبية --- */
+        .sidebar {
+            position: fixed; top: 0; right: -320px; width: 320px; height: 100%;
+            background: rgba(10, 12, 18, 0.85); backdrop-filter: blur(25px);
+            border-left: 1px solid var(--glass-border); z-index: 200;
+            padding: 100px 25px 30px 25px; transition: var(--transition);
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .sidebar.open { right: 0; }
+        .nav-item {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 16px 20px; border-radius: 14px; cursor: pointer; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center; transition: var(--transition);
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(0, 224, 255, 0.08); border-color: var(--primary); color: var(--primary); transform: translateX(-5px); }
+
+        /* --- محتوى الصفحات --- */
+        main { margin-top: 100px; padding: 20px 4%; min-height: calc(100vh - 100px); display: flex; justify-content: center; align-items: center; }
+        .page-section { width: 100%; max-width: 1100px; display: none; animation: fadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .page-section.active-page { display: block; }
+
+        .action-hint {
+            text-align: center; background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 12px; border-radius: 12px; margin-bottom: 30px; color: var(--accent); font-size: 0.95rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; border-color: var(--accent); } 100% { opacity: 0.7; } }
+
+        /* غلاف الفيديوهات (Grid) */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; }
+        @media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } }
+
+        .video-card {
+            background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); backdrop-filter: var(--blur); transition: var(--transition);
+        }
+        .video-card:hover { transform: translateY(-8px); border-color: var(--primary-glow); box-shadow: 0 20px 40px rgba(0, 224, 255, 0.08); }
+        .video-tagline { color: var(--accent); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .video-card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 15px; color: #fff; line-height: 1.4; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        /* --- حاوية مباريات كأس العالم المدمجة --- */
+        .widget-wrapper {
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto;
+            background: #0d1117;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        }
+        .widget-wrapper iframe {
+            width: 100%;
+            height: 680px;
+            border: none;
+            /* ربط ألوان السيرفر بهوية الموقع (الخلفية والنصوص والأخضر الفسفوري للأهداف) */
+            background: #0d1117;
+        }
+
+        /* --- واجهة الصيانة للأقسام الأخرى --- */
+        .maintenance-box {
+            text-align: center; padding: 60px 20px; background: var(--glass); border: 1px solid rgba(255, 7, 58, 0.2); border-radius: 24px; max-width: 600px; margin: 0 auto; backdrop-filter: var(--blur);
+        }
+        .maintenance-icon { font-size: 4rem; margin-bottom: 20px; animation: rotateGear 4s linear infinite; display: inline-block; }
+        @keyframes rotateGear { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .maintenance-box h2 { font-size: 1.8rem; color: #ff3366; margin-bottom: 12px; }
+        .maintenance-box p { color: var(--text-muted); }
+
+        .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(4px); }
+        .sidebar-backdrop.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-backdrop" id="backdrop" onclick="toggleSidebar()"></div>
+
+    <header>
+        <div class="logo-container" onclick="switchPage('highlights')">
+            <div class="sports-badge"></div>
+            <div class="logo-text" translate="no">RePlay</div>
+        </div>
+        <div class="menu-btn" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <div class="nav-item active" id="btn-highlights" onclick="switchPage('highlights')">
+            <span>قسم الملخصات الكروية</span> ⚽
+        </div>
+        <div class="nav-item" id="btn-results" onclick="switchPage('results')">
+            <span>نتائج مباريات كأس العالم</span> 📊
+        </div>
+        <div class="nav-item" id="btn-upcoming" onclick="switchPage('upcoming')">
+            <span>المباريات القادمة</span> 📅
+        </div>
+        <div class="nav-item" id="btn-streams" onclick="switchPage('streams')">
+            <span>روابط المشاهدة</span> 🔗
+        </div>
+    </div>
+
+    <main>
+        <section id="highlights" class="page-section active-page">
+            <div class="action-hint">💡 اضغط على الشرطات في الأعلى من أجل اختيار قسم آخر</div>
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-tagline">🔥 قمة الكلاسيكو النارية</div>
+                    <div class="video-card-title">ملخص مباراة برشلونة X ريال مدريد</div>
+                    <div class="video-wrapper">
+                        <iframe src="https://streamable.com/e/ozreov" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-tagline">⚡ صراع العمالقة والنهائيات</div>
+                    <div class="video-card-title">ملخص مباراة برشلونة X اتلتيكو مدريد</div>
+                    <div class="video-wrapper">
+                        <iframe src="https://streamable.com/e/v1d0st" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="results" class="page-section">
+            <div class="action-hint">📊 مركز نتائج كأس العالم والبطولات الحية - تحديث تلقائي فوري مدمج بالكامل</div>
+            <div class="widget-wrapper">
+                <iframe src="https://www.scorespro.com/fw88/thw_football.php?w=100%&bg=0d1117&fc=ffffff&lfc=00ff87&tz=auto" 
+                        scrolling="yes" 
+                        allowtransparency="true">
+                </iframe>
+            </div>
+        </section>
+
+        <section id="upcoming" class="page-section">
+            <div class="maintenance-box">
+                <div class="maintenance-icon">⚙️</div>
+                <h2>قسم المباريات القادمة تحت الصيانة</h2>
+                <p>جدول مواعيد المباريات بتوقيتك المحلي قيد التطوير والربط حالياً.</p>
+            </div>
+        </section>
+
+        <section id="streams" class="page-section">
+            <div class="maintenance-box">
+                <div class="maintenance-icon">⚙️</div>
+                <h2>قسم روابط المشاهدة تحت الصيانة</h2>
+                <p>سيرفرات البث المباشر الفوري للمباريات ستكون متاحة قريباً بدون تقطيع.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            sidebar.classList.toggle('open');
+            backdrop.classList.toggle('show');
+        }
+
+        function switchPage(pageId) {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('backdrop').classList.remove('show');
+
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(section => section.classList.remove('active-page'));
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            setTimeout(() => {
+                const targetPage = document.getElementById(pageId);
+                if(targetPage) targetPage.classList.add('active-page');
+                
+                const targetBtn = document.getElementById(`btn-${pageId}`);
+                if(targetBtn) targetBtn.classList.add('active');
+            }, 100);
+        }
+    </script>
+</body>
+</html>
