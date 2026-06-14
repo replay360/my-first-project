@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RePlay | منصة الملخصات الكروية</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
         :root {
@@ -96,7 +96,7 @@
         }
         .theme-toggle-btn:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 135, 0.2); }
 
-        /* --- حاوية وزر الشرطات الجديد في المكان البرتقالي المطلوب --- */
+        /* --- حاوية وزر الشرطات الجديد --- */
         .menu-trigger-container {
             width: 100%;
             max-width: 450px;
@@ -171,7 +171,6 @@
             box-shadow: 0 0 20px rgba(0, 224, 255, 0.15);
         }
         
-        /* تنسيق حاوية الأيقونات المصنوعة يدوياً داخل القائمة الجانبية */
         .nav-icon-wrapper {
             display: flex; align-items: center; justify-content: center;
             width: 28px; height: 28px; transition: var(--transition);
@@ -199,7 +198,7 @@
         }
         @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; border-color: var(--accent); } 100% { opacity: 0.7; } }
 
-        /* غلاف الفيديوهات (Grid) */
+        /* غلاف الفيديوهات */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; }
         @media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } }
 
@@ -213,7 +212,7 @@
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-        /* --- ترتيب بطاقة قسم البث المباشر والروابط --- */
+        /* --- قسم البث المباشر --- */
         .stream-card {
             background: var(--glass); border: 1px solid rgba(0, 224, 255, 0.2); border-radius: 24px;
             padding: 40px 20px; text-align: center; max-width: 650px; margin: 0 auto; backdrop-filter: var(--blur);
@@ -229,7 +228,7 @@
         }
         .fb-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(24, 119, 242, 0.6); background: #166fe5; }
 
-        /* --- حاوية مباريات كأس العالم المدمجة --- */
+        /* --- حاوية مباريات كأس العالم --- */
         .widget-wrapper {
             width: 100%; max-width: 750px; margin: 0 auto; background: #0d1117;
             border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden;
@@ -237,7 +236,7 @@
         }
         .widget-wrapper iframe { width: 100%; height: 680px; border: none; background: #0d1117; }
 
-        /* --- واجهة الصيانة للأقسام الأخرى --- */
+        /* --- واجهة الصيانة --- */
         .maintenance-box {
             text-align: center; padding: 60px 20px; background: var(--glass); border: 1px solid rgba(255, 221, 0, 0.2); border-radius: 24px; max-width: 600px; margin: 0 auto; backdrop-filter: var(--blur);
         }
@@ -292,7 +291,7 @@
             transform: scale(1.03); box-shadow: 0 6px 20px rgba(0, 224, 255, 0.4);
         }
 
-        /* فوتر الموقع الأساسي السفلي */
+        /* فوتر الموقع */
         footer {
             width: 100%; height: 40px; display: flex; justify-content: center; align-items: center;
             border-top: 1px solid var(--glass-border); background: rgba(7, 9, 14, 0.3);
@@ -373,7 +372,6 @@
                             <iframe src="https://streamable.com/e/ci57vc" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
                     </div>
-                    
                     <div class="video-card">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
                         <div class="video-card-title">ملخص مباراة كوريا الجنوبية X تشيكيا</div>
@@ -381,7 +379,6 @@
                             <iframe src="https://streamable.com/e/99j6rq" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
                     </div>
-            
                     <div class="video-card">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
                         <div class="video-card-title">ملخص مباراة أمريكا X باراغواي</div>
@@ -389,7 +386,6 @@
                             <iframe src="https://streamable.com/e/qmyjy9" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
                     </div>
-            
                     <div class="video-card">
                         <div class="video-tagline">🔥 قمة الكلاسيكو النارية</div>
                         <div class="video-card-title">ملخص مباراة برشلونة X ريال مدريد</div>
@@ -409,10 +405,7 @@
 
             <section id="results" class="page-section">
                 <div class="widget-wrapper">
-                    <iframe src="https://www.scorespro.com/fw88/thw_football.php?w=100%&bg=0d1117&fc=ffffff&lfc=00ff87&tz=auto" 
-                            scrolling="yes" 
-                            allowtransparency="true">
-                    </iframe>
+                    <iframe src="https://www.scorespro.com/fw88/thw_football.php?w=100%&bg=0d1117&fc=ffffff&lfc=00ff87&tz=auto" scrolling="yes" allowtransparency="true"></iframe>
                 </div>
             </section>
 
@@ -450,27 +443,25 @@
     <footer>الياسري</footer>
 
     <script>
-        // --- 1. إعدادات الربط بـ Supabase الشات اللايف ---
+        // --- 1. إعدادات السيرفر والربط اللحظي ---
         const SUPABASE_URL = "https://cyhlkofxjfvujykgquto.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_A-lytgibaB15OeQaHn50RA_nPqz8_6k"; 
         
-        // استخدام المناداة الصحيحة للمكتبة عبر النافذة لضمان الأمان وعدم توقف الأزرار
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // تم تغيير اسم الثابت إلى supabaseClient لمنع التضارب نهائياً مع اسم المكتبة الأساسية
+        const supabaseClient = unpkg = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const chatMessagesBox = document.getElementById('chat-messages-box');
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
 
-        // توليد اسم مشجع عشوائي فريد لكل مستخدم يدخل الدردشة
         let chatUsername = localStorage.getItem('replay_chat_user');
         if (!chatUsername) {
             chatUsername = "مشجع_" + Math.floor(1000 + Math.random() * 9000);
             localStorage.setItem('replay_chat_user', chatUsername);
         }
 
-        // دالة جلب آخر 50 رسالة قديمة من السيرفر
         async function loadChatMessages() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('messages')
                 .select('*')
                 .order('created_at', { ascending: true })
@@ -483,36 +474,29 @@
             }
         }
 
-        // دالة إدراج الرسالة في الواجهة بجمالية النيون
         function appendChatMessage(username, content) {
             const msgElement = document.createElement('div');
             msgElement.classList.add('chat-msg');
-            
-            // تمييز رسائلك الشخصية باللون الوردي النيون لتبدو كالمشرف
             if(username === chatUsername) {
                 msgElement.style.borderRightColor = '#ff0055';
             }
-
             msgElement.innerHTML = `<span class="user-name">${username}</span><span class="msg-text">${content}</span>`;
             chatMessagesBox.appendChild(msgElement);
         }
 
-        // دالة دفع الرسالة لقاعدة البيانات فوراً
         async function sendNewChatMessage() {
             const text = chatInput.value.trim();
             if (!text) return;
-
             chatInput.value = '';
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('messages')
                 .insert([{ username: chatUsername, content: text }]);
                 
             if (error) console.error("خطأ إرسال السيرفر:", error);
         }
 
-        // تفعيل ميزة الاستماع اللحظي التلقائي (Realtime) للرسائل الجديدة بدون ريفريش
-        supabase
+        supabaseClient
             .channel('schema-db-changes')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
                 appendChatMessage(payload.new.username, payload.new.content);
@@ -520,14 +504,12 @@
             })
             .subscribe();
 
-        // ربط أحداث الإرسال بالضغط والزر
         chatSendBtn.addEventListener('click', sendNewChatMessage);
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendNewChatMessage(); });
 
         function scrollChatToBottom() { chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight; }
 
-
-        // --- 2. أكواد التنقل والتحكم والأنميشن للموقع ---
+        // --- 2. أزرار التحكم والتنقل والسايدبار ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
@@ -543,15 +525,12 @@
         }
 
         function switchPage(pageId) {
-            // إخفاء كل الصفحات
             const sections = document.querySelectorAll('.page-section');
             sections.forEach(sec => sec.classList.remove('active-page'));
 
-            // إزالة حالة النشاط من أزرار السايدبار
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
 
-            // تفعيل الصفحة المطلوبة والزر الخاص بها
             const activeSection = document.getElementById(pageId);
             if(activeSection) activeSection.classList.add('active-page');
 
@@ -559,7 +538,6 @@
             const activeBtn = document.getElementById(btnId);
             if(activeBtn) activeBtn.classList.add('active');
 
-            // إغلاق السايدبار تلقائياً بعد الانتقال بالموبايل
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
             const menuBtn = document.getElementById('central-menu-btn');
@@ -569,7 +547,6 @@
                 menuBtn.classList.remove('open-active');
             }
 
-            // إذا دخل المشجع لقسم الشات، يتم تشغيل جلب الرسائل فوراً
             if(pageId === 'chat') {
                 loadChatMessages();
                 setTimeout(scrollChatToBottom, 300);
