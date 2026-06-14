@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RePlay | منصة الملخصات الكروية</title>
-    <!-- استدعاء مكتبة Supabase الرسمية من أجل نظام المحادثة المباشر -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
@@ -315,7 +314,6 @@
         </div>
     </header>
 
-    <!-- الأقسام مع القائمة الجانبية المحدثة بقسم المحادثة الجماعية اللايف -->
     <div class="sidebar" id="sidebar">
         <div class="nav-item active" id="btn-highlights" onclick="switchPage('highlights')">
             <span>قسم الملخصات الكروية</span>
@@ -335,7 +333,6 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12a7 7 0 0 1 14 0M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg>
             </div>
         </div>
-        <!-- قسم المحادثة الجماعية الجديد -->
         <div class="nav-item" id="btn-chat" onclick="switchPage('chat')">
             <span>محادثة جماعية لايف</span>
             <div class="nav-icon-wrapper">
@@ -354,10 +351,8 @@
 
     <main>
         <div class="page-content-box">
-            <!-- التلميح المعدل ليتناسق مع التغيير الجديد -->
             <div class="action-hint">💡 اضغط على زر القائمة في الأسفل من أجل اختيار أقسام المنصة الأخرى</div>
 
-            <!-- الزر الجديد والشرطات متموضعة في الفراغ البرتقالي بين التلميح والملخصات ضبط مع حركة الأنميشن -->
             <div class="menu-trigger-container">
                 <div class="menu-btn" id="central-menu-btn" onclick="toggleSidebar()">
                     <div class="hamburger-icon">
@@ -369,7 +364,6 @@
                 </div>
             </div>
 
-            <!-- قسم الملخصات -->
             <section id="highlights" class="page-section active-page">
                 <div class="video-grid">
                     <div class="video-card">
@@ -413,7 +407,6 @@
                 </div>
             </section>
 
-            <!-- قسم النتائج -->
             <section id="results" class="page-section">
                 <div class="widget-wrapper">
                     <iframe src="https://www.scorespro.com/fw88/thw_football.php?w=100%&bg=0d1117&fc=ffffff&lfc=00ff87&tz=auto" 
@@ -423,7 +416,6 @@
                 </div>
             </section>
 
-            <!-- قسم الروابط والمشاهدة على فيسبوك -->
             <section id="streams" class="page-section">
                 <div class="stream-card">
                     <div class="stream-icon">📡</div>
@@ -435,7 +427,6 @@
                 </div>
             </section>
 
-            <!-- قسم واجهة الشات الجماعي المباشر الجديد -->
             <section id="chat" class="page-section">
                 <div class="chat-section-container">
                     <div class="chat-messages-box" id="chat-messages-box"></div>
@@ -446,7 +437,6 @@
                 </div>
             </section>
 
-            <!-- قسم الصيانة للمحلل الفني -->
             <section id="ai-analyst" class="page-section">
                 <div class="maintenance-box">
                     <div class="maintenance-icon">⚙️</div>
@@ -464,7 +454,8 @@
         const SUPABASE_URL = "https://cyhlkofxjfvujykgquto.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_A-lytgibaB15OeQaHn50RA_nPqz8_6k"; 
         
-        const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // استخدام المناداة الصحيحة للمكتبة عبر النافذة لضمان الأمان وعدم توقف الأزرار
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const chatMessagesBox = document.getElementById('chat-messages-box');
         const chatInput = document.getElementById('chat-input');
@@ -536,7 +527,7 @@
         function scrollChatToBottom() { chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight; }
 
 
-        // --- 2. أكواد التنقل والتحكم والأنميشن القديمة للموقع ---
+        // --- 2. أكواد التنقل والتحكم والأنميشن للموقع ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
@@ -572,7 +563,7 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
             const menuBtn = document.getElementById('central-menu-btn');
-            if(sidebar.classList.contains('open')) {
+            if(sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
                 backdrop.classList.remove('show');
                 menuBtn.classList.remove('open-active');
