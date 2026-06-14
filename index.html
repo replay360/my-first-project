@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RePlay | منصة الملخصات الكروية</title>
+    <!-- استدعاء مكتبة Supabase الرسمية من أجل نظام المحادثة المباشر -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
         :root {
@@ -248,6 +250,49 @@
         .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(4px); }
         .sidebar-backdrop.show { display: block; }
 
+        /* --- تصميم قسم المحادثة الجماعية الاحترافي (Neon Chat) --- */
+        .chat-section-container {
+            display: flex; flex-direction: column; height: 70vh; max-width: 750px; margin: 0 auto;
+            background: rgba(10, 13, 20, 0.6); border: 1px solid rgba(0, 224, 255, 0.2);
+            border-radius: 24px; overflow: hidden; backdrop-filter: var(--blur);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+        }
+        .chat-messages-box {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+        }
+        .chat-msg {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px; border-radius: 14px; max-width: 85%; width: fit-content;
+            border-right: 4px solid var(--accent); animation: fadeIn 0.3s ease forwards;
+        }
+        .chat-msg .user-name {
+            font-size: 0.85rem; color: var(--accent); font-weight: bold; margin-bottom: 4px; display: block;
+        }
+        .chat-msg .msg-text {
+            font-size: 0.95rem; color: #e2e8f0; word-break: break-word; user-select: text;
+        }
+        .chat-input-area {
+            background: rgba(7, 9, 14, 0.8); padding: 15px 20px; display: flex; gap: 12px;
+            border-top: 1px solid var(--glass-border); align-items: center;
+        }
+        #chat-input {
+            flex: 1; background: #07090e; border: 1px solid var(--glass-border);
+            border-radius: 30px; padding: 14px 20px; color: #fff; outline: none;
+            font-size: 0.95rem; transition: var(--transition); user-select: text;
+        }
+        #chat-input:focus {
+            border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
+        }
+        #chat-send-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; color: #07090e; font-weight: bold; padding: 0 26px; height: 48px;
+            border-radius: 30px; cursor: pointer; font-size: 0.95rem; transition: var(--transition);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+        #chat-send-btn:hover {
+            transform: scale(1.03); box-shadow: 0 6px 20px rgba(0, 224, 255, 0.4);
+        }
+
         /* فوتر الموقع الأساسي السفلي */
         footer {
             width: 100%; height: 40px; display: flex; justify-content: center; align-items: center;
@@ -270,7 +315,7 @@
         </div>
     </header>
 
-    <!-- الأقسام مع أيقونات SVG الاحترافية المصنوعة خصيصاً للمنصة بستايل نيون ناعم -->
+    <!-- الأقسام مع القائمة الجانبية المحدثة بقسم المحادثة الجماعية اللايف -->
     <div class="sidebar" id="sidebar">
         <div class="nav-item active" id="btn-highlights" onclick="switchPage('highlights')">
             <span>قسم الملخصات الكروية</span>
@@ -288,6 +333,13 @@
             <span>روابط المشاهدة</span>
             <div class="nav-icon-wrapper">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12a7 7 0 0 1 14 0M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg>
+            </div>
+        </div>
+        <!-- قسم المحادثة الجماعية الجديد -->
+        <div class="nav-item" id="btn-chat" onclick="switchPage('chat')">
+            <span>محادثة جماعية لايف</span>
+            <div class="nav-icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
         </div>
         <div class="nav-item" id="btn-ai-analyst" onclick="switchPage('ai-analyst')">
@@ -320,13 +372,13 @@
             <!-- قسم الملخصات -->
             <section id="highlights" class="page-section active-page">
                 <div class="video-grid">
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة المغرب X برازيل</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/ci57vc" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
+                    <div class="video-card">
+                        <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
+                        <div class="video-card-title">ملخص مباراة المغرب X برازيل</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/ci57vc" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                    </div>
                     
                     <div class="video-card">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
@@ -383,6 +435,17 @@
                 </div>
             </section>
 
+            <!-- قسم واجهة الشات الجماعي المباشر الجديد -->
+            <section id="chat" class="page-section">
+                <div class="chat-section-container">
+                    <div class="chat-messages-box" id="chat-messages-box"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="اكتب رسالتك داخل الدردشة المباشرة..." autocomplete="off">
+                        <button id="chat-send-btn">إرسال 🚀</button>
+                    </div>
+                </div>
+            </section>
+
             <!-- قسم الصيانة للمحلل الفني -->
             <section id="ai-analyst" class="page-section">
                 <div class="maintenance-box">
@@ -397,6 +460,83 @@
     <footer>الياسري</footer>
 
     <script>
+        // --- 1. إعدادات الربط بـ Supabase الشات اللايف ---
+        const SUPABASE_URL = "https://cyhlkofxjfvujykgquto.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_A-lytgibaB15OeQaHn50RA_nPqz8_6k"; 
+        
+        const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const chatMessagesBox = document.getElementById('chat-messages-box');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+
+        // توليد اسم مشجع عشوائي فريد لكل مستخدم يدخل الدردشة
+        let chatUsername = localStorage.getItem('replay_chat_user');
+        if (!chatUsername) {
+            chatUsername = "مشجع_" + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('replay_chat_user', chatUsername);
+        }
+
+        // دالة جلب آخر 50 رسالة قديمة من السيرفر
+        async function loadChatMessages() {
+            const { data, error } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: true })
+                .limit(50);
+
+            if (data) {
+                chatMessagesBox.innerHTML = '';
+                data.forEach(msg => appendChatMessage(msg.username, msg.content));
+                scrollChatToBottom();
+            }
+        }
+
+        // دالة إدراج الرسالة في الواجهة بجمالية النيون
+        function appendChatMessage(username, content) {
+            const msgElement = document.createElement('div');
+            msgElement.classList.add('chat-msg');
+            
+            // تمييز رسائلك الشخصية باللون الوردي النيون لتبدو كالمشرف
+            if(username === chatUsername) {
+                msgElement.style.borderRightColor = '#ff0055';
+            }
+
+            msgElement.innerHTML = `<span class="user-name">${username}</span><span class="msg-text">${content}</span>`;
+            chatMessagesBox.appendChild(msgElement);
+        }
+
+        // دالة دفع الرسالة لقاعدة البيانات فوراً
+        async function sendNewChatMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            chatInput.value = '';
+
+            const { error } = await supabase
+                .from('messages')
+                .insert([{ username: chatUsername, content: text }]);
+                
+            if (error) console.error("خطأ إرسال السيرفر:", error);
+        }
+
+        // تفعيل ميزة الاستماع اللحظي التلقائي (Realtime) للرسائل الجديدة بدون ريفريش
+        supabase
+            .channel('schema-db-changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                appendChatMessage(payload.new.username, payload.new.content);
+                scrollChatToBottom();
+            })
+            .subscribe();
+
+        // ربط أحداث الإرسال بالضغط والزر
+        chatSendBtn.addEventListener('click', sendNewChatMessage);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendNewChatMessage(); });
+
+        function scrollChatToBottom() { chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight; }
+
+
+        // --- 2. أكواد التنقل والتحكم والأنميشن القديمة للموقع ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
@@ -404,38 +544,45 @@
             
             sidebar.classList.toggle('open');
             backdrop.classList.toggle('show');
-            menuBtn.classList.toggle('open-active'); // تفعيل أنميشن تحول الشرطات لـ X
+            menuBtn.classList.toggle('open-active');
         }
 
         function toggleTheme() {
             document.body.classList.toggle('oled-dark');
-            const btn = document.querySelector('.theme-toggle-btn');
-            if(document.body.classList.contains('oled-dark')) {
-                btn.innerText = "🕶️";
-            } else {
-                btn.innerText = "👁️";
-            }
         }
 
         function switchPage(pageId) {
-            // إغلاق السايدبار وإرجاع زر الأنميشن لحالته الطبيعية عند التنقل
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('backdrop').classList.remove('show');
-            document.getElementById('central-menu-btn').classList.remove('open-active');
-
+            // إخفاء كل الصفحات
             const sections = document.querySelectorAll('.page-section');
-            sections.forEach(section => section.classList.remove('active-page'));
+            sections.forEach(sec => sec.classList.remove('active-page'));
 
+            // إزالة حالة النشاط من أزرار السايدبار
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
 
-            setTimeout(() => {
-                const targetPage = document.getElementById(pageId);
-                if(targetPage) targetPage.classList.add('active-page');
-                
-                const targetBtn = document.getElementById(`btn-${pageId}`);
-                if(targetBtn) targetBtn.classList.add('active');
-            }, 100);
+            // تفعيل الصفحة المطلوبة والزر الخاص بها
+            const activeSection = document.getElementById(pageId);
+            if(activeSection) activeSection.classList.add('active-page');
+
+            let btnId = 'btn-' + pageId;
+            const activeBtn = document.getElementById(btnId);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // إغلاق السايدبار تلقائياً بعد الانتقال بالموبايل
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            const menuBtn = document.getElementById('central-menu-btn');
+            if(sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                backdrop.classList.remove('show');
+                menuBtn.classList.remove('open-active');
+            }
+
+            // إذا دخل المشجع لقسم الشات، يتم تشغيل جلب الرسائل فوراً
+            if(pageId === 'chat') {
+                loadChatMessages();
+                setTimeout(scrollChatToBottom, 300);
+            }
         }
     </script>
 </body>
