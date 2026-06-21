@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RePlay | منصة الملخصات الكروية</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
         :root {
@@ -87,7 +86,6 @@
 
         .header-actions { display: flex; align-items: center; gap: 15px; }
 
-        /* زر الدارك مود المطور */
         .theme-toggle-btn {
             background: var(--glass); border: 1px solid var(--glass-border);
             width: 45px; height: 45px; border-radius: 12px;
@@ -96,7 +94,7 @@
         }
         .theme-toggle-btn:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 135, 0.2); }
 
-        /* --- حاوية وزر الشرطات الجديد --- */
+        /* --- حاوية وزر الشرطات القديم --- */
         .menu-trigger-container {
             width: 100%;
             max-width: 450px;
@@ -134,20 +132,17 @@
             width: 22px; height: 2.5px; background: #fff; border-radius: 2px; 
             transition: var(--transition); transform-origin: center;
         }
-        /* أنميشن التحول الذكي عند الفتح */
         .menu-btn.open-active .hamburger-icon span:nth-child(1) {
             transform: translateY(7.5px) rotate(45deg);
             background: var(--accent);
         }
-        .menu-btn.open-active .hamburger-icon span:nth-child(2) {
-            opacity: 0;
-        }
+        .menu-btn.open-active .hamburger-icon span:nth-child(2) { opacity: 0; }
         .menu-btn.open-active .hamburger-icon span:nth-child(3) {
             transform: translateY(-7.5px) rotate(-45deg);
             background: var(--accent);
         }
 
-        /* --- القائمة الجانبية المحترفة --- */
+        /* --- القائمة الجانبية (تم كنسلة الشات الجماعي) --- */
         .sidebar {
             position: fixed; top: 0; right: -320px; width: 320px; height: 100%;
             background: rgba(10, 12, 18, 0.92); backdrop-filter: blur(25px);
@@ -198,19 +193,123 @@
         }
         @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; border-color: var(--accent); } 100% { opacity: 0.7; } }
 
-        /* غلاف الفيديوهات */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; }
+        /* غلاف الفيديوهات الكروية */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 35px; }
         @media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } }
 
         .video-card {
-            background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); backdrop-filter: var(--blur); transition: var(--transition);
+            background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); backdrop-filter: var(--blur); transition: var(--transition);
+            display: flex; flex-direction: column;
         }
-        .video-card:hover { transform: translateY(-8px); border-color: var(--primary-glow); box-shadow: 0 20px 40px rgba(0, 224, 255, 0.08); }
+        .video-card:hover { border-color: rgba(0, 224, 255, 0.25); box-shadow: 0 20px 40px rgba(0, 224, 255, 0.05); }
         .video-tagline { color: var(--accent); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
         .video-card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 15px; color: #fff; line-height: 1.4; }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 8px 20px rgba(0,0,0,0.4); margin-bottom: 15px; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        /* ====== 🛠️ قسم نظام التعليقات النيون المطور ====== */
+        .comments-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 15px;
+            margin-top: auto;
+        }
+        
+        /* ميزة أول تعليق جذاب ظاهر تلقائياً */
+        .featured-comment-box {
+            background: rgba(0, 224, 255, 0.03);
+            border: 1px dashed rgba(0, 224, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .featured-comment-box .comment-user {
+            font-size: 0.82rem; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 5px;
+        }
+        .featured-comment-box .comment-user::after {
+            content: '🔥 أبرز التعليقات'; background: rgba(0, 255, 135, 0.15); color: var(--accent); font-size: 0.65rem; padding: 1px 6px; border-radius: 6px;
+        }
+        .featured-comment-box .comment-text {
+            font-size: 0.9rem; color: #e2e8f0; line-height: 1.4;
+        }
+
+        /* زر عرض وإخفاء باقي التعليقات مع السهم */
+        .toggle-comments-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            width: 100%; padding: 10px; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 700; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            transition: var(--transition);
+        }
+        .toggle-comments-btn:hover {
+            background: rgba(0, 224, 255, 0.05); color: var(--primary); border-color: var(--primary);
+        }
+        .toggle-comments-btn svg {
+            transition: transform 0.3s ease;
+        }
+        .toggle-comments-btn.active svg {
+            transform: rotate(180deg);
+        }
+
+        /* حاوية التعليقات المخفية مع أنميشن الفتح المنسدل */
+        .collapsible-comments {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .comments-wrapper {
+            padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comments-list {
+            max-height: 220px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
+            padding-right: 4px;
+        }
+        /* تخصيص السكرول بار للتعليقات */
+        .comments-list::-webkit-scrollbar { width: 4px; }
+        .comments-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .single-comment {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 10px 14px; border-radius: 12px;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        .single-comment .comment-user {
+            font-size: 0.82rem; color: var(--primary); font-weight: 700; margin-bottom: 3px; display: block;
+        }
+        .single-comment .comment-text {
+            font-size: 0.9rem; color: #cbd5e1; line-height: 1.4; user-select: text;
+        }
+
+        /* صندوق إضافة تعليق جديد */
+        .add-comment-form {
+            display: flex; gap: 10px; margin-top: 5px;
+        }
+        .comment-input {
+            flex: 1; background: #07090e; border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 10px 15px; color: #fff; outline: none;
+            font-size: 0.9rem; transition: var(--transition); user-select: text;
+        }
+        .comment-input:focus {
+            border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 224, 255, 0.15);
+        }
+        .comment-submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; color: #07090e; font-weight: 800; padding: 0 16px;
+            border-radius: 12px; cursor: pointer; font-size: 0.85rem; transition: var(--transition);
+        }
+        .comment-submit-btn:hover {
+            transform: scale(1.03); box-shadow: 0 4px 12px var(--primary-glow);
+        }
 
         /* --- قسم البث المباشر --- */
         .stream-card {
@@ -236,7 +335,7 @@
         }
         .widget-wrapper iframe { width: 100%; height: 680px; border: none; background: #0d1117; }
 
-        /* --- واجهة الصيانة --- */
+        /* --- واجهة الصيانة للمحلل --- */
         .maintenance-box {
             text-align: center; padding: 60px 20px; background: var(--glass); border: 1px solid rgba(255, 221, 0, 0.2); border-radius: 24px; max-width: 600px; margin: 0 auto; backdrop-filter: var(--blur);
         }
@@ -247,49 +346,6 @@
 
         .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(4px); }
         .sidebar-backdrop.show { display: block; }
-
-        /* --- تصميم قسم المحادثة الجماعية الاحترافي (Neon Chat) --- */
-        .chat-section-container {
-            display: flex; flex-direction: column; height: 70vh; max-width: 750px; margin: 0 auto;
-            background: rgba(10, 13, 20, 0.6); border: 1px solid rgba(0, 224, 255, 0.2);
-            border-radius: 24px; overflow: hidden; backdrop-filter: var(--blur);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
-        }
-        .chat-messages-box {
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-        }
-        .chat-msg {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px 16px; border-radius: 14px; max-width: 85%; width: fit-content;
-            border-right: 4px solid var(--accent); animation: fadeIn 0.3s ease forwards;
-        }
-        .chat-msg .user-name {
-            font-size: 0.85rem; color: var(--accent); font-weight: bold; margin-bottom: 4px; display: block;
-        }
-        .chat-msg .msg-text {
-            font-size: 0.95rem; color: #e2e8f0; word-break: break-word; user-select: text;
-        }
-        .chat-input-area {
-            background: rgba(7, 9, 14, 0.8); padding: 15px 20px; display: flex; gap: 12px;
-            border-top: 1px solid var(--glass-border); align-items: center;
-        }
-        #chat-input {
-            flex: 1; background: #07090e; border: 1px solid var(--glass-border);
-            border-radius: 30px; padding: 14px 20px; color: #fff; outline: none;
-            font-size: 0.95rem; transition: var(--transition); user-select: text;
-        }
-        #chat-input:focus {
-            border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
-        }
-        #chat-send-btn {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border: none; color: #07090e; font-weight: bold; padding: 0 26px; height: 48px;
-            border-radius: 30px; cursor: pointer; font-size: 0.95rem; transition: var(--transition);
-            box-shadow: 0 4px 15px var(--primary-glow);
-        }
-        #chat-send-btn:hover {
-            transform: scale(1.03); box-shadow: 0 6px 20px rgba(0, 224, 255, 0.4);
-        }
 
         /* فوتر الموقع */
         footer {
@@ -332,12 +388,6 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12a7 7 0 0 1 14 0M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg>
             </div>
         </div>
-        <div class="nav-item" id="btn-chat" onclick="switchPage('chat')">
-            <span>محادثة جماعية لايف</span>
-            <div class="nav-icon-wrapper">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-        </div>
         <div class="nav-item" id="btn-ai-analyst" onclick="switchPage('ai-analyst')">
             <span>المحلل الكروي الذكي</span>
             <div class="nav-icon-wrapper">
@@ -365,81 +415,154 @@
 
             <section id="highlights" class="page-section active-page">
                 <div class="video-grid">
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كأس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة العراق X النرويج</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/3zsmi4" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
                     
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كأس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة الأرجنتين X الجزائر</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/556tr9" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
-                    
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كأس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة أسبانيا X الرأس الاخضر</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/cfq011" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
-                    
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كأس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة المانيا X كوراساو</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/ken239" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
-                    
-                            <div class="video-card">
-            <div class="video-tagline">🟢 كأس العالم دور المجموعات</div>
-            <div class="video-card-title">ملخص مباراة تونس X السويد</div>
-            <div class="video-wrapper">
-                <iframe src="https://streamable.com/e/ach3uv" allow="autoplay; fullscreen" allowfullscreen></iframe>
-            </div>
-                            </div>
-                    
-                    <div class="video-card">
+                    <div class="video-card" data-match-id="match_morocco_brazil">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
                         <div class="video-card-title">ملخص مباراة المغرب X برازيل</div>
                         <div class="video-wrapper">
                             <iframe src="https://streamable.com/e/ci57vc" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box">
+                                <span class="comment-user">ياسين_المغربي</span>
+                                <p class="comment-text">مباراة تاريخية وجمال مش طبيعي من أسود الأطلس! 🦁🇲🇦</p>
+                            </div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list">
+                                        <div class="single-comment"><span class="comment-user">كابتن_علي</span><p class="comment-text">البرازيل عانت صراحة بالدفاع اليوم.</p></div>
+                                        <div class="single-comment"><span class="comment-user">الملك_الريالي</span><p class="comment-text">ملخص ناري وجودة البث توب التوب عشتوا.</p></div>
+                                    </div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="video-card">
+                    
+                    <div class="video-card" data-match-id="match_korea_czech">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
                         <div class="video-card-title">ملخص مباراة كوريا الجنوبية X تشيكيا</div>
                         <div class="video-wrapper">
                             <iframe src="https://streamable.com/e/99j6rq" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box">
+                                <span class="comment-user">عاشق_الساموراي</span>
+                                <p class="comment-text">سرعة الكوريين مو طبيعية بالمرتدات! ⚡</p>
+                            </div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list">
+                                        <div class="single-comment"><span class="comment-user">خبير_تكتيكي</span><p class="comment-text">مباراة مقفلة من الطرفين تكتيكياً الممل.</p></div>
+                                    </div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="video-card">
+            
+                    <div class="video-card" data-match-id="match_usa_paraguay">
                         <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
                         <div class="video-card-title">ملخص مباراة أمريكا X باراغواي</div>
                         <div class="video-wrapper">
                             <iframe src="https://streamable.com/e/qmyjy9" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box">
+                                <span class="comment-user">عمر_الدون</span>
+                                <p class="comment-text">منتخب باراغواي فاجأ الكل بالأداء القوي الحماسي.</p>
+                            </div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list">
+                                        <div class="single-comment"><span class="comment-user">سيف_الحميد</span><p class="comment-text">أمريكا ضيعت فرص هواية بالشوط الثاني غريبة.</p></div>
+                                    </div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="video-card">
+            
+                    <div class="video-card" data-match-id="match_barca_real">
                         <div class="video-tagline">🔥 قمة الكلاسيكو النارية</div>
                         <div class="video-card-title">ملخص مباراة برشلونة X ريال مدريد</div>
                         <div class="video-wrapper">
                             <iframe src="https://streamable.com/e/ozreov" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box">
+                                <span class="comment-user">برشلوني_للأبد</span>
+                                <p class="comment-text">الملعب انفجر متعة! ليلة كتالونية بامتياز هاردلك للغريم 💙❤️</p>
+                            </div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list">
+                                        <div class="single-comment"><span class="comment-user">مدريدي_ملكي</span><p class="comment-text">الحكم ظلمنا ببلنتي واضح بس يلا معوضة بالقادم.</p></div>
+                                        <div class="single-comment"><span class="comment-user">حيدر_سبورت</span><p class="comment-text">أفضل ملخص للكلاسيكو شفته لهسة وربي.</p></div>
+                                    </div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="video-card">
+
+                    <div class="video-card" data-match-id="match_barca_atletico">
                         <div class="video-tagline">⚡ صراع العمالقة والنهائيات</div>
                         <div class="video-card-title">ملخص مباراة برشلونة X اتلتيكو مدريد</div>
                         <div class="video-wrapper">
                             <iframe src="https://streamable.com/e/v1d0st" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box">
+                                <span class="comment-user">سيموني_العراقي</span>
+                                <p class="comment-text">دفاع اتلتيكو انتحر اليوم رسمي قدام الهجوم.</p>
+                            </div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list">
+                                        <div class="single-comment"><span class="comment-user">منتظر_برسا</span><p class="comment-text">ثلاث نقاط غالية من فم الأسد، عاصفة تكتيكية.</p></div>
+                                    </div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </section>
 
@@ -460,16 +583,6 @@
                 </div>
             </section>
 
-            <section id="chat" class="page-section">
-                <div class="chat-section-container">
-                    <div class="chat-messages-box" id="chat-messages-box"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chat-input" placeholder="اكتب رسالتك داخل الدردشة المباشرة..." autocomplete="off">
-                        <button id="chat-send-btn">إرسال 🚀</button>
-                    </div>
-                </div>
-            </section>
-
             <section id="ai-analyst" class="page-section">
                 <div class="maintenance-box">
                     <div class="maintenance-icon">⚙️</div>
@@ -483,73 +596,78 @@
     <footer>الياسري</footer>
 
     <script>
-        // --- 1. إعدادات السيرفر والربط اللحظي ---
-        const SUPABASE_URL = "https://cyhlkofxjfvujykgquto.supabase.co"; 
-        const SUPABASE_KEY = "sb_publishable_A-lytgibaB15OeQaHn50RA_nPqz8_6k"; 
+        // --- 1. أكواد نظام أنميشن التعليقات والإضافة الفورية ---
         
-        // تم تغيير اسم الثابت إلى supabaseClient لمنع التضارب نهائياً مع اسم المكتبة الأساسية
-        const supabaseClient = unpkg = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const chatMessagesBox = document.getElementById('chat-messages-box');
-        const chatInput = document.getElementById('chat-input');
-        const chatSendBtn = document.getElementById('chat-send-btn');
-
-        let chatUsername = localStorage.getItem('replay_chat_user');
-        if (!chatUsername) {
-            chatUsername = "مشجع_" + Math.floor(1000 + Math.random() * 9000);
-            localStorage.setItem('replay_chat_user', chatUsername);
-        }
-
-        async function loadChatMessages() {
-            const { data, error } = await supabaseClient
-                .from('messages')
-                .select('*')
-                .order('created_at', { ascending: true })
-                .limit(50);
-
-            if (data) {
-                chatMessagesBox.innerHTML = '';
-                data.forEach(msg => appendChatMessage(msg.username, msg.content));
-                scrollChatToBottom();
-            }
-        }
-
-        function appendChatMessage(username, content) {
-            const msgElement = document.createElement('div');
-            msgElement.classList.add('chat-msg');
-            if(username === chatUsername) {
-                msgElement.style.borderRightColor = '#ff0055';
-            }
-            msgElement.innerHTML = `<span class="user-name">${username}</span><span class="msg-text">${content}</span>`;
-            chatMessagesBox.appendChild(msgElement);
-        }
-
-        async function sendNewChatMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-            chatInput.value = '';
-
-            const { error } = await supabaseClient
-                .from('messages')
-                .insert([{ username: chatUsername, content: text }]);
+        // دالة تفعيل الأنميشن الانسيابي لفتح وإغلاق التعليقات (Slide Effect)
+        function toggleCommentsContainer(btn) {
+            const collapsible = btn.nextElementSibling;
+            btn.classList.toggle('active');
+            
+            if (collapsible.style.maxHeight && collapsible.style.maxHeight !== "0px") {
+                collapsible.style.maxHeight = "0px";
+                btn.querySelector('span').innerText = "عرض باقي التعليقات";
+            } else {
+                // حساب الارتفاع الداخلي الفعلي للفتح بسلاسة تامة
+                collapsible.style.maxHeight = collapsible.scrollHeight + "px";
+                btn.querySelector('span').innerText = "إخفاء التعليقات";
                 
-            if (error) console.error("خطأ إرسال السيرفر:", error);
+                // تحديث الارتفاع تلقائياً للمتصفح بحال تمدد المحتوى داخله
+                setTimeout(() => {
+                    if(btn.classList.contains('active')) {
+                        collapsible.style.maxHeight = "none";
+                    }
+                }, 500);
+            }
         }
 
-        supabaseClient
-            .channel('schema-db-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                appendChatMessage(payload.new.username, payload.new.content);
-                scrollChatToBottom();
-            })
-            .subscribe();
+        // دالة نشر وإضافة تعليق جديد فورياً داخل المنشور الخاص به
+        function submitNewComment(btn) {
+            const form = btn.parentElement;
+            const input = form.querySelector('.comment-input');
+            const commentText = input.value.trim();
+            
+            if (!commentText) return;
 
-        chatSendBtn.addEventListener('click', sendNewChatMessage);
-        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendNewChatMessage(); });
+            const commentsList = form.parentElement.querySelector('.comments-list');
+            
+            // توليد اسم مشجع عشوائي مؤقت للحفظ
+            let localUser = localStorage.getItem('replay_chat_user');
+            if(!localUser) {
+                localUser = "مشجع_" + Math.floor(1000 + Math.random() * 9000);
+                localStorage.setItem('replay_chat_user', localUser);
+            }
 
-        function scrollChatToBottom() { chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight; }
+            // بناء عنصر التعليق بستايل نيون متناسق
+            const newCommentDiv = document.createElement('div');
+            newCommentDiv.classList.add('single-comment');
+            newCommentDiv.innerHTML = `<span class="comment-user">${localUser}</span><p class="comment-text">${commentText}</p>`;
+            
+            // إدراج وبث التعليق في القائمة
+            commentsList.appendChild(newCommentDiv);
+            
+            // تصفير الخانة ونزول السكرول بار لآخر تعليق تم إضافته
+            input.value = '';
+            commentsList.scrollTop = commentsList.scrollHeight;
 
-        // --- 2. أزرار التحكم والتنقل والسايدبار ---
+            // في حال كانت الحاوية مفتوحة بـ "none"، نضمن عدم حدوث خلل بالـ DOM
+            const collapsible = form.closest('.collapsible-comments');
+            if(collapsible.style.maxHeight !== "none") {
+                collapsible.style.maxHeight = collapsible.scrollHeight + "px";
+            }
+        }
+
+        // تفعيل الإرسال عند كبس Enter داخل حقول التعليقات
+        document.querySelectorAll('.comment-input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    const submitBtn = this.nextElementSibling;
+                    submitBtn.click();
+                }
+            });
+        });
+
+
+        // --- 2. أكواد التنقل والتحكم والسايدبار الثابتة دون تغيير ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('backdrop');
@@ -585,11 +703,6 @@
                 sidebar.classList.remove('open');
                 backdrop.classList.remove('show');
                 menuBtn.classList.remove('open-active');
-            }
-
-            if(pageId === 'chat') {
-                loadChatMessages();
-                setTimeout(scrollChatToBottom, 300);
             }
         }
     </script>
