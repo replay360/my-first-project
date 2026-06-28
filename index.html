@@ -3,289 +3,677 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عداد إنستغرام المباشر</title>
+    <title>RePlay | منصة الملخصات الكروية</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
+        /* --- المتغيرات الأساسية والألوان الرياضية الموحدة --- */
         :root {
-            --bg-color: #09090b;
-            --card-bg: #18181b;
-            --accent-color: #00f2fe;
-            --text-color: #ffffff;
-            --text-muted: #a1a1aa;
-            --border-color: #27272a;
+            --bg-gradient: radial-gradient(circle at 50% 50%, #0d1117 0%, #07090e 100%);
+            --primary: #00e0ff;
+            --primary-glow: rgba(0, 224, 255, 0.4);
+            --accent: #00ff87;
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --blur: blur(16px);
+            --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
+        /* --- ثيم الأسود الفائق (OLED Black) --- */
+        body.oled-dark {
+            --bg-gradient: #000000;
+            --glass: rgba(255, 255, 255, 0.01);
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- إعدادات التصفير العامة --- */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--bg-gradient);
+            color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 10px;
-            background: linear-gradient(to left, #00f2fe, #4facfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* خانة إدخال اليوزر */
-        .search-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 12px 16px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .search-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text-color);
-            font-size: 16px;
-            direction: ltr;
-        }
-
-        .search-box button {
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .search-box button:active {
-            transform: scale(0.95);
-        }
-
-        /* كارت عرض العداد الرئيسي */
-        .live-panel {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 30px 20px;
-            text-align: center;
-            display: none; /* يظهر عند البحث */
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .live-panel.active {
-            display: flex;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .profile-img {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: 3px solid var(--accent-color);
-            object-fit: cover;
-            margin-bottom: 12px;
-        }
-
-        .profile-username {
-            font-size: 18px;
-            color: var(--text-muted);
-            direction: ltr;
-            margin-bottom: 20px;
-        }
-
-        /* العداد الرئيسي العلوي الواضح */
-        .total-counter-title {
-            font-size: 14px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .main-count {
-            font-size: 48px;
-            font-weight: 800;
-            color: #fff;
-            margin: 5px 0 25px 0;
-            letter-spacing: -1px;
-        }
-
-        /* كارت المراقبة الحية السفلي */
-        .live-tracker-box {
-            width: 100%;
-            background: rgba(0, 242, 254, 0.05);
-            border: 1px dashed rgba(0, 242, 254, 0.2);
-            border-radius: 16px;
-            padding: 15px;
-            margin-top: 10px;
-        }
-
-        .live-pulse-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        .live-text {
-            font-size: 13px;
-            color: #22c55e;
-            font-weight: 600;
-        }
-
-        .live-sub-count {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--accent-color);
-        }
-
-        .status-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 15px;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.6; }
+        /* --- الهيدر (الشريط العلوي) --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 80px;
+            background: rgba(7, 9, 14, 0.6);
+            backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+            z-index: 100;
         }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .sports-badge {
+            position: relative; width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: badgeMorph 6s linear infinite alternate;
+        }
+        .sports-badge::before { content: ''; width: 18px; height: 18px; border: 3px solid #07090e; border-radius: 50%; background: transparent; }
+
+        @keyframes badgeMorph {
+            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            100% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+        }
+
+        .logo-text {
+            font-size: 1.8rem; font-weight: 800; letter-spacing: 1px;
+            background: linear-gradient(to left, #fff, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+
+        /* زر الدارك مود المطور */
+        .theme-toggle-btn {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.3rem; cursor: pointer; transition: var(--transition); color: #fff;
+        }
+        .theme-toggle-btn:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 135, 0.2); }
+
+        /* --- حاوية وزر الشرطات الجديد --- */
+        .menu-trigger-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-btn {
+            background: rgba(7, 9, 14, 0.7); 
+            border: 1px solid rgba(0, 224, 255, 0.3);
+            width: 100%; height: 55px; border-radius: 16px;
+            display: flex; justify-content: center; align-items: center; gap: 12px;
+            cursor: pointer; transition: var(--transition);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--blur);
+        }
+        .menu-btn:hover { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+            transform: scale(1.02);
+        }
+        .menu-btn-text {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .hamburger-icon {
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+            width: 24px; height: 24px;
+        }
+        .hamburger-icon span { 
+            width: 22px; height: 2.5px; background: #fff; border-radius: 2px; 
+            transition: var(--transition); transform-origin: center;
+        }
+        /* أنميشن التحول الذكي عند الفتح */
+        .menu-btn.open-active .hamburger-icon span:nth-child(1) {
+            transform: translateY(7.5px) rotate(45deg);
+            background: var(--accent);
+        }
+        .menu-btn.open-active .hamburger-icon span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-btn.open-active .hamburger-icon span:nth-child(3) {
+            transform: translateY(-7.5px) rotate(-45deg);
+            background: var(--accent);
+        }
+
+        /* --- القائمة الجانبية المحترفة --- */
+        .sidebar {
+            position: fixed; top: 0; right: -320px; width: 320px; height: 100%;
+            background: rgba(10, 12, 18, 0.92); backdrop-filter: blur(25px);
+            border-left: 1px solid var(--glass-border); z-index: 200;
+            padding: 100px 25px 30px 25px; transition: var(--transition);
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .sidebar.open { right: 0; }
+        
+        .nav-item {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px 20px; border-radius: 30px; cursor: pointer; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center; transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .nav-item:hover, .nav-item.active { 
+            background: rgba(0, 224, 255, 0.05); 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: translateX(-8px);
+            box-shadow: 0 0 20px rgba(0, 224, 255, 0.15);
+        }
+        
+        .nav-icon-wrapper {
+            display: flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; transition: var(--transition);
+        }
+        .nav-item:hover .nav-icon-wrapper, .nav-item.active .nav-icon-wrapper {
+            transform: rotate(8deg) scale(1.1);
+        }
+
+        .sidebar-footer {
+            margin-top: auto; text-align: center; font-size: 0.8rem;
+            color: #ffffff; opacity: 0.6; letter-spacing: 1px;
+            font-weight: 700; border-top: 1px solid var(--glass-border); padding-top: 15px;
+        }
+
+        /* --- محتوى الصفحات --- */
+        main { margin-top: 100px; padding: 20px 4%; min-height: calc(100vh - 140px); }
+        .page-content-box { width: 100%; max-width: 1100px; margin: 0 auto; }
+        .page-section { width: 100%; display: none; animation: fadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .page-section.active-page { display: block; }
+
+        .action-hint {
+            text-align: center; background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 12px; border-radius: 12px; margin-bottom: 25px; color: var(--accent); font-size: 0.95rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; border-color: var(--accent); } 100% { opacity: 0.7; } }
+
+        /* غلاف الفيديوهات */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; }
+        @media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } }
+
+        .video-card {
+            background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); backdrop-filter: var(--blur); transition: var(--transition);
+            display: flex; flex-direction: column;
+        }
+        .video-card:hover { transform: translateY(-8px); border-color: var(--primary-glow); box-shadow: 0 20px 40px rgba(0, 224, 255, 0.08); }
+        .video-tagline { color: var(--accent); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .video-card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 15px; color: #fff; line-height: 1.4; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 8px 20px rgba(0,0,0,0.4); margin-bottom: 15px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        /* --- 🛠️ استايل خانة التعليقات المتطورة الحقيقية --- */
+        .comments-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 15px; margin-top: auto;
+        }
+        .featured-comment-box {
+            background: rgba(0, 224, 255, 0.03); border: 1px dashed rgba(0, 224, 255, 0.2);
+            border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; display: none; flex-direction: column; gap: 2px;
+        }
+        .featured-comment-box .comment-user {
+            font-size: 0.82rem; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 5px;
+        }
+        .featured-comment-box .comment-user::after {
+            content: '💬 أول تعليق من السيرفر'; background: rgba(0, 224, 255, 0.1); color: var(--primary); font-size: 0.65rem; padding: 1px 6px; border-radius: 6px;
+        }
+        .featured-comment-box .comment-text { font-size: 0.9rem; color: #e2e8f0; line-height: 1.4; }
+
+        .toggle-comments-btn {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); color: var(--text-muted);
+            width: 100%; padding: 10px; border-radius: 12px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .toggle-comments-btn:hover { background: rgba(0, 224, 255, 0.05); color: var(--primary); border-color: var(--primary); }
+        .toggle-comments-btn svg { transition: transform 0.3s ease; }
+        .toggle-comments-btn.active svg { transform: rotate(180deg); }
+
+        .collapsible-comments { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .comments-wrapper { padding-top: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .comments-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .single-comment { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 10px 14px; border-radius: 12px; animation: fadeIn 0.3s ease; }
+        .single-comment .comment-user { font-size: 0.82rem; color: var(--primary); font-weight: 700; margin-bottom: 3px; display: block; }
+        .single-comment .comment-text { font-size: 0.9rem; color: #cbd5e1; line-height: 1.4; user-select: text; }
+
+        .add-comment-form { display: flex; gap: 10px; margin-top: 5px; }
+        .comment-input { flex: 1; background: #07090e; border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px 15px; color: #fff; outline: none; font-size: 0.9rem; transition: var(--transition); user-select: text; }
+        .comment-input:focus { border-color: var(--primary); }
+        .comment-submit-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; color: #07090e; font-weight: 800; padding: 0 16px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; }
+
+        /* --- قسم البث المباشر --- */
+        .stream-card {
+            background: var(--glass); border: 1px solid rgba(0, 224, 255, 0.2); border-radius: 24px;
+            padding: 40px 20px; text-align: center; max-width: 650px; margin: 0 auto; backdrop-filter: var(--blur);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        .stream-icon { font-size: 3.5rem; margin-bottom: 20px; display: inline-block; animation: pulse 2s infinite; }
+        .stream-card h2 { font-size: 1.8rem; color: #fff; margin-bottom: 15px; font-weight: 800; }
+        .stream-card p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 25px; }
+        .fb-btn {
+            display: inline-flex; align-items: center; gap: 10px; background: #1877f2; color: #fff;
+            padding: 14px 32px; border-radius: 30px; font-weight: 700; text-decoration: none;
+            font-size: 1.05rem; box-shadow: 0 5px 20px rgba(24, 119, 242, 0.4); transition: var(--transition);
+        }
+        .fb-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(24, 119, 242, 0.6); background: #166fe5; }
+
+        /* --- حاوية مباريات كأس العالم --- */
+        .widget-wrapper {
+            width: 100%; max-width: 750px; margin: 0 auto; background: #0d1117;
+            border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        }
+        .widget-wrapper iframe { width: 100%; height: 680px; border: none; background: #0d1117; }
+
+        /* --- واجهة الصيانة --- */
+        .maintenance-box {
+            text-align: center; padding: 60px 20px; background: var(--glass); border: 1px solid rgba(255, 221, 0, 0.2); border-radius: 24px; max-width: 600px; margin: 0 auto; backdrop-filter: var(--blur);
+        }
+        .maintenance-icon { font-size: 4rem; margin-bottom: 20px; animation: rotateGear 4s linear infinite; display: inline-block; }
+        @keyframes rotateGear { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .maintenance-box h2 { font-size: 1.8rem; color: #ffcc00; margin-bottom: 12px; }
+        .maintenance-box p { color: var(--text-muted); }
+
+        .sidebar-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(4px); }
+        .sidebar-backdrop.show { display: block; }
     </style>
 </head>
 <body>
 
-    <h1>Insta Live Counter</h1>
+    <div class="sidebar-backdrop" id="backdrop" onclick="toggleSidebar()"></div>
 
-    <div class="container">
-        <!-- بار البحث النظيف -->
-        <div class="search-box">
-            <input type="text" id="targetUser" placeholder="أدخل يوزر الحساب المراد مراقبته...">
-            <button id="btnAction">بدء المراقبة</button>
+    <header>
+        <div class="logo-container" onclick="switchPage('highlights')">
+            <div class="sports-badge"></div>
+            <div class="logo-text" translate="no">RePlay</div>
         </div>
+        <div class="header-actions">
+            <div class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي الفائق">👁️</div>
+        </div>
+    </header>
 
-        <!-- لوحة العداد الجديدة كلياً -->
-        <div class="live-panel" id="livePanel">
-            <img class="profile-img" id="userImg" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop" alt="avatar">
-            <div class="profile-username" id="displayUser">@username</div>
-
-            <!-- المجموع الكلي فوق وواضح -->
-            <div class="total-counter-title">إجمالي عدد المتابعين الكلي</div>
-            <div class="main-count" id="totalCount">0</div>
-
-            <!-- كارت التحديث الحي تحت -->
-            <div class="live-tracker-box">
-                <div class="live-pulse-container">
-                    <div class="pulse-dot"></div>
-                    <div class="live-text">العداد المباشر (تحديث كل ٥ ثوانٍ)</div>
-                </div>
-                <div class="live-sub-count" id="liveCount">0</div>
+    <div class="sidebar" id="sidebar">
+        <div class="nav-item active" id="btn-highlights" onclick="switchPage('highlights')">
+            <span>قسم الملخصات الكروية</span>
+            <div class="nav-icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
             </div>
-
-            <div class="status-text" id="engineStatus">جاري الاتصال بالسيرفر الوسيط...</div>
         </div>
+        <div class="nav-item" id="btn-results" onclick="switchPage('results')">
+            <span>نتائج ومباريات كأس العالم</span>
+            <div class="nav-icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            </div>
+        </div>
+        <div class="nav-item" id="btn-streams" onclick="switchPage('streams')">
+            <span>روابط المشاهدة</span>
+            <div class="nav-icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12a7 7 0 0 1 14 0M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1"/></svg>
+            </div>
+        </div>
+        <div class="nav-item" id="btn-ai-analyst" onclick="switchPage('ai-analyst')">
+            <span>المحلل الكروي الذكي</span>
+            <div class="nav-icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+        </div>
+        <div class="sidebar-footer">الياسري</div>
     </div>
 
+    <main>
+        <div class="page-content-box">
+            <div class="action-hint">💡 اضغط على زر القائمة في الأسفل من أجل اختيار أقسام المنصة الأخرى</div>
+
+            <div class="menu-trigger-container">
+                <div class="menu-btn" id="central-menu-btn" onclick="toggleSidebar()">
+                    <div class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="menu-btn-text">قائمة أقسام منصة RePlay</span>
+                </div>
+            </div>
+
+            <section id="highlights" class="page-section active-page">
+                <div class="video-grid">
+                    <div class="video-card" data-match-id="morocco_brazil">
+                        <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
+                        <div class="video-card-title">ملخص مباراة المغرب X برازيل</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/ci57vc" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box"></div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list"></div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card" data-match-id="korea_czech">
+                        <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
+                        <div class="video-card-title">ملخص مباراة كوريا الجنوبية X تشيكيا</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/99j6rq" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box"></div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list"></div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="video-card" data-match-id="usa_paraguay">
+                        <div class="video-tagline">🟢 كاس العالم دور المجموعات</div>
+                        <div class="video-card-title">ملخص مباراة أمريكا X باراغواي</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/qmyjy9" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box"></div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list"></div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="video-card" data-match-id="barca_real">
+                        <div class="video-tagline">🔥 قمة الكلاسيكو النارية</div>
+                        <div class="video-card-title">ملخص مباراة برشلونة X ريال مدريد</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/ozreov" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box"></div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list"></div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="video-card" data-match-id="barca_atletico">
+                        <div class="video-tagline">⚡ صراع العمالقة والنهائيات</div>
+                        <div class="video-card-title">ملخص مباراة برشلونة X اتلتيكو مدريد</div>
+                        <div class="video-wrapper">
+                            <iframe src="https://streamable.com/e/v1d0st" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                        </div>
+                        <div class="comments-section">
+                            <div class="featured-comment-box"></div>
+                            <button class="toggle-comments-btn" onclick="toggleCommentsContainer(this)">
+                                <span>عرض باقي التعليقات</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="collapsible-comments">
+                                <div class="comments-wrapper">
+                                    <div class="comments-list"></div>
+                                    <div class="add-comment-form">
+                                        <input type="text" class="comment-input" placeholder="اكتب تعليقك الكروي...">
+                                        <button class="comment-submit-btn" onclick="submitNewComment(this)">علّق</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="results" class="page-section">
+                <div class="widget-wrapper">
+                    <iframe src="https://www.scorespro.com/fw88/thw_football.php?w=100%&bg=0d1117&fc=ffffff&lfc=00ff87&tz=auto" scrolling="yes" allowtransparency="true"></iframe>
+                </div>
+            </section>
+
+            <section id="streams" class="page-section">
+                <div class="stream-card">
+                    <div class="stream-icon">📡</div>
+                    <h2>البث المباشر للمباريات</h2>
+                    <p>يمكنكم متابعة ومشاهدة المباريات القوية مجاناً وبأعلى جودة بدون تقطيع مباشرة على صفحتنا الرسمية في فيسبوك!</p>
+                    <a href="https://www.facebook.com/64.fc.64" target="_blank" class="fb-btn">
+                        <span>انتقل للبث المباشر على فيسبوك</span> 🔗
+                    </a>
+                </div>
+            </section>
+
+            <section id="ai-analyst" class="page-section">
+                <div class="maintenance-box">
+                    <div class="maintenance-icon">⚙️</div>
+                    <h2>المحلل الفني تحت الصيانة</h2>
+                    <p>يتم تطوير خوادم الربط والتحليل الفني الذكي حالياً لتوفير إحصائيات أدق.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>الياسري</footer>
+
     <script>
-        // هنا تم تضمين بيانات حسابك الوهمي بأمان تام داخل محرك التشغيل
-        const scraperConfig = {
-            bridgeUser: "owl.7565474",
-            bridgePass: "qp20072007"
-        };
+        // --- 1. إعدادات السيرفر والربط اللحظي للتعليقات المحفوظة ---
+        const SUPABASE_URL = "https://cyhlkofxjfvujykgquto.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_A-lytgibaB15OeQaHn50RA_nPqz8_6k"; 
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const targetInput = document.getElementById('targetUser');
-        const actionBtn = document.getElementById('btnAction');
-        const livePanel = document.getElementById('livePanel');
-        const totalCountLabel = document.getElementById('totalCount');
-        const liveCountLabel = document.getElementById('liveCount');
-        const displayUser = document.getElementById('displayUser');
-        const engineStatus = document.getElementById('engineStatus');
-
-        let liveTimer = null;
-        let baseFollowers = 0;
-
-        function formatNumber(num) {
-            return num.toString().replace(/\B=(\d{3})+(?!\d)/g, ",");
+        let chatUsername = localStorage.getItem('replay_chat_user');
+        if (!chatUsername) {
+            chatUsername = "مشجع_" + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('replay_chat_user', chatUsername);
         }
 
-        async function triggerLiveUpdate() {
-            // محرك المحاكاة والربط البرمجي باستخدام جلسة الحساب الممرر فوق
-            try {
-                // المحاكاة الحية الفخمة للتحديث لتعطي رقم متغير حقيقي كل 5 ثواني
-                const fluctuation = Math.floor(Math.random() * 7) - 2; 
-                baseFollowers += fluctuation;
+        // جلب وتوزيع التعليقات الحقيقية من السيرفر لكل مباراة عند فتح الموقع
+        async function loadAllCommentsFromSupabase() {
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: true });
 
-                // تحديث الشاشة
-                totalCountLabel.textContent = Number(baseFollowers).toLocaleString();
-                liveCountLabel.textContent = Number(baseFollowers).toLocaleString();
-                engineStatus.textContent = "الاتصال مستقر وآمن عبر الجسر الوهمي.";
-            } catch (err) {
-                engineStatus.textContent = "فشل التحديث، جاري محاولة إعادة الاتصال...";
+            if (data) {
+                // تصفير القوائم أولاً
+                document.querySelectorAll('.comments-list').forEach(list => list.innerHTML = '');
+                document.querySelectorAll('.featured-comment-box').forEach(box => { box.innerHTML = ''; box.style.display = 'none'; });
+
+                data.forEach(msg => {
+                    // فحص إذا كانت الرسالة مهيأة لنظام التعليقات الجديد وتحمل وسم المباراة
+                    if (msg.content && msg.content.includes('[match_id:')) {
+                        const parts = msg.content.split(']');
+                        const matchIdTag = parts[0].replace('[match_id:', '').trim();
+                        const pureCommentText = parts.slice(1).join(']').trim();
+
+                        const videoCard = document.querySelector(`.video-card[data-match-id="${matchIdTag}"]`);
+                        if (videoCard) {
+                            const commentsList = videoCard.querySelector('.comments-list');
+                            const featuredBox = videoCard.querySelector('.featured-comment-box');
+
+                            // إدراج التعليق بالقائمة الداخلية
+                            const commentDiv = document.createElement('div');
+                            commentDiv.classList.add('single-comment');
+                            commentDiv.innerHTML = `<span class="comment-user">${msg.username}</span><p class="comment-text">${pureCommentText}</p>`;
+                            commentsList.appendChild(commentDiv);
+
+                            // حركة الجذب: جعل أول تعليق حقيقي قادم من السيرفر يظهر بالخارج فوراً
+                            if (featuredBox && featuredBox.innerHTML === '') {
+                                featuredBox.innerHTML = `<span class="comment-user">${msg.username}</span><p class="comment-text">${pureCommentText}</p>`;
+                                featuredBox.style.display = 'flex';
+                            }
+                        }
+                    }
+                });
             }
         }
 
-        actionBtn.addEventListener('click', () => {
-            const username = targetInput.value.trim();
-            if(!username) return;
-
-            // تجهيز البيانات الافتراضية للحساب المبحوث عنه
-            displayUser.textContent = `@${username}`;
-            baseFollowers = Math.floor(Math.random() * 450000) + 50000; // رقم عشوائي كبداية حقيقية
+        // رفع وحفظ التعليق الجديد بقاعدة البيانات بربط ذكي وموثق
+        async function submitNewComment(btn) {
+            const videoCard = btn.closest('.video-card');
+            const matchId = videoCard.getAttribute('data-match-id');
+            const input = videoCard.querySelector('.comment-input');
+            const commentText = input.value.trim();
             
-            totalCountLabel.textContent = Number(baseFollowers).toLocaleString();
-            liveCountLabel.textContent = Number(baseFollowers).toLocaleString();
+            if (!commentText) return;
+            input.value = '';
 
-            // إظهار اللوحة بـ الأنيميشن الجديد
-            livePanel.classList.add('active');
+            // صياغة النص مع وسم المعرف ليفصل تعليقات كل مباراة بجدولك الموحد
+            const formattedContent = `[match_id:${matchId}] ${commentText}`;
 
-            // تصفير وإعادة تشغيل التحديث التلقائي كل 5 ثواني
-            clearInterval(liveTimer);
-            engineStatus.textContent = "جاري جلب البيانات المباشرة...";
-            liveTimer = setInterval(triggerLiveUpdate, 5000);
+            const { error } = await supabaseClient
+                .from('messages')
+                .insert([{ username: chatUsername, content: formattedContent }]);
+                
+            if (error) console.error("خطأ بحفظ التعليق بالسيرفر:", error);
+        }
+
+        // الاستماع اللحظي (Realtime) لتحديث التعليقات فوراً عند إرسالها من أي مستخدم
+        supabaseClient
+            .channel('schema-db-changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                const newMsg = payload.new;
+                if (newMsg.content && newMsg.content.includes('[match_id:')) {
+                    const parts = newMsg.content.split(']');
+                    const matchIdTag = parts[0].replace('[match_id:', '').trim();
+                    const pureCommentText = parts.slice(1).join(']').trim();
+
+                    const videoCard = document.querySelector(`.video-card[data-match-id="${matchIdTag}"]`);
+                    if (videoCard) {
+                        const commentsList = videoCard.querySelector('.comments-list');
+                        const featuredBox = videoCard.querySelector('.featured-comment-box');
+
+                        const commentDiv = document.createElement('div');
+                        commentDiv.classList.add('single-comment');
+                        commentDiv.innerHTML = `<span class="comment-user">${newMsg.username}</span><p class="comment-text">${pureCommentText}</p>`;
+                        commentsList.appendChild(commentDiv);
+                        commentsList.scrollTop = commentsList.scrollHeight;
+
+                        // تحديث صندوق الجذب الخارجي إذا كان فارغاً
+                        if (featuredBox && featuredBox.style.display === 'none') {
+                            featuredBox.innerHTML = `<span class="comment-user">${newMsg.username}</span><p class="comment-text">${pureCommentText}</p>`;
+                            featuredBox.style.display = 'flex';
+                        }
+
+                        // إبقاء الأنميشن منسدلاً ومفتوحاً بسلاسة دون تشنج الارتفاع
+                        const collapsible = videoCard.querySelector('.collapsible-comments');
+                        if (collapsible.style.maxHeight !== "0px" && collapsible.style.maxHeight !== "") {
+                            collapsible.style.maxHeight = collapsible.scrollHeight + "px";
+                        }
+                    }
+                }
+            })
+            .subscribe();
+
+        // أنميشن فتح وإغلاق التعليقات المنسدل الفائق النعومة
+        function toggleCommentsContainer(btn) {
+            const collapsible = btn.nextElementSibling;
+            btn.classList.toggle('active');
+            
+            if (collapsible.style.maxHeight && collapsible.style.maxHeight !== "0px") {
+                collapsible.style.maxHeight = "0px";
+                btn.querySelector('span').innerText = "عرض باقي التعليقات";
+            } else {
+                collapsible.style.maxHeight = collapsible.scrollHeight + "px";
+                btn.querySelector('span').innerText = "إخفاء التعليقات";
+            }
+        }
+
+        // تشغيل الجلب الأولي للتعليقات من السيرفر فور تشغيل الموقع
+        document.addEventListener("DOMContentLoaded", loadAllCommentsFromSupabase);
+
+        // ربط حقول الإدخال بزر الإرسال عند الضغط على Enter
+        document.querySelectorAll('.comment-input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    this.nextElementSibling.click();
+                }
+            });
         });
 
-        targetInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') actionBtn.click();
-        });
+
+        // --- 2. أكواد السايدبار والتنقل والتحكم الموحدة القديمة ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            const menuBtn = document.getElementById('central-menu-btn');
+            
+            sidebar.classList.toggle('open');
+            backdrop.classList.toggle('show');
+            menuBtn.classList.toggle('open-active');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('oled-dark');
+        }
+
+        function switchPage(pageId) {
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(sec => sec.classList.remove('active-page'));
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            const activeSection = document.getElementById(pageId);
+            if(activeSection) activeSection.classList.add('active-page');
+
+            let btnId = 'btn-' + pageId;
+            const activeBtn = document.getElementById(btnId);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('backdrop');
+            const menuBtn = document.getElementById('central-menu-btn');
+            if(sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                backdrop.classList.remove('show');
+                menuBtn.classList.remove('open-active');
+            }
+        }
     </script>
 </body>
 </html>
